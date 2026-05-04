@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#071510">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FitFlow Pro">
+<meta name="description" content="Android-first all-in-one fitness app — workouts, running, yoga, diet & more.">
+<title>FitFlow Pro</title>
+<link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <!-- Google Identity Services (One Tap + Sign In With Google) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- ANIMATED SPLASH SCREEN                                          -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="splash-screen" style="
+  position:fixed;inset:0;z-index:99999;
+  background:#071510;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity 0.6s ease, transform 0.6s ease;
+">
+  <style>
+    #splash-screen.fade-out { opacity:0; transform:scale(1.05); pointer-events:none; }
+
+    @keyframes splash-ring-spin {
+      from { transform:rotate(0deg); }
+      to   { transform:rotate(360deg); }
+    }
+    @keyframes splash-ring-spin-rev {
+      from { transform:rotate(0deg); }
+      to   { transform:rotate(-360deg); }
+    }
+    @keyframes splash-pulse {
+      0%,100% { transform:scale(1); opacity:0.15; }
+      50%      { transform:scale(1.15); opacity:0.05; }
+    }
+    @keyframes splash-bolt {
+      0%,100% { filter:drop-shadow(0 0 6px #4caf50) drop-shadow(0 0 12px #2e7d46); }
+      50%      { filter:drop-shadow(0 0 16px #7ed9a0) drop-shadow(0 0 32px #43a05a); }
+    }
+    @keyframes splash-title-in {
+      from { opacity:0; transform:translateY(20px) letterSpacing:0.2em; }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes splash-sub-in {
+      from { opacity:0; transform:translateY(10px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes splash-tagline-in {
+      from { opacity:0; }
+      to   { opacity:0.6; }
+    }
+    @keyframes splash-bar-fill {
+      from { width:0%; }
+      to   { width:100%; }
+    }
+    @keyframes splash-bar-glow {
+      0%,100% { box-shadow:0 0 8px #4caf50; }
+      50%      { box-shadow:0 0 20px #7ed9a0, 0 0 40px #43a05a; }
+    }
+    @keyframes splash-particle {
+      0%   { transform:translate(0,0) scale(1); opacity:0.8; }
+      100% { transform:translate(var(--px),var(--py)) scale(0); opacity:0; }
+    }
+    .splash-particle {
+      position:absolute;
+      width:4px;height:4px;
+      border-radius:50%;
+      background:#4caf50;
+      animation:splash-particle 1.5s ease-out forwards;
+    }
+  </style>
+
+  <!-- Particles background -->
+  <div id="splash-particles" style="position:absolute;inset:0;overflow:hidden;pointer-events:none"></div>
+
+  <!-- Main logo container -->
+  <div style="position:relative;width:160px;height:160px;margin-bottom:32px">
+
+    <!-- Outer pulse ring -->
+    <div style="
+      position:absolute;inset:-20px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(76,175,80,0.15) 0%,transparent 70%);
+      animation:splash-pulse 2.5s ease-in-out infinite;
+    "></div>
+
+    <!-- Spinning ring 1 -->
+    <div style="
+      position:absolute;inset:-8px;
+      border-radius:50%;
+      border:1.5px solid transparent;
+      border-top-color:#4caf50;
+      border-right-color:#2e7d46;
+      animation:splash-ring-spin 3s linear infinite;
+    "></div>
+
+    <!-- Spinning ring 2 (reverse) -->
+    <div style="
+      position:absolute;inset:-16px;
+      border-radius:50%;
+      border:1px solid transparent;
+      border-bottom-color:#43a05a;
+      border-left-color:#1a5c32;
+      animation:splash-ring-spin-rev 4s linear infinite;
+    "></div>
+
+    <!-- Dashed orbit ring -->
+    <div style="
+      position:absolute;inset:-4px;
+      border-radius:50%;
+      border:1px dashed rgba(76,175,80,0.3);
+      animation:splash-ring-spin 8s linear infinite;
+    "></div>
+
+    <!-- Main circle -->
+    <div style="
+      position:absolute;inset:0;
+      border-radius:50%;
+      background:linear-gradient(135deg,#1a4a28,#0d2a16);
+      border:2px solid rgba(76,175,80,0.3);
+      display:flex;align-items:center;justify-content:center;
+    ">
+      <!-- Lightning bolt SVG -->
+      <svg width="70" height="70" viewBox="0 0 80 80" style="animation:splash-bolt 2s ease-in-out infinite">
+        <path d="M46 10 L28 42 L40 42 L32 70 L54 36 L41 36 Z"
+          fill="#4caf50"
+          stroke="rgba(126,217,160,0.4)"
+          stroke-width="1"/>
+        <path d="M46 10 L28 42 L40 42 L32 70 L54 36 L41 36 Z"
+          fill="none"
+          stroke="rgba(255,255,255,0.15)"
+          stroke-width="0.5"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- App name -->
+  <div style="
+    font-family:var(--font-display,sans-serif);
+    font-size:48px;
+    font-weight:700;
+    color:#7ed9a0;
+    letter-spacing:0.08em;
+    line-height:1;
+    animation:splash-title-in 0.6s ease forwards;
+    animation-delay:0.3s;
+    opacity:0;
+  ">FITFLOW</div>
+
+  <!-- PRO badge -->
+  <div style="
+    font-family:var(--font-display,sans-serif);
+    font-size:14px;
+    font-weight:700;
+    color:#fff;
+    letter-spacing:0.3em;
+    background:linear-gradient(135deg,#2e7d46,#1a5c32);
+    padding:3px 14px;
+    border-radius:20px;
+    margin-top:6px;
+    border:1px solid rgba(76,175,80,0.4);
+    animation:splash-sub-in 0.6s ease forwards;
+    animation-delay:0.5s;
+    opacity:0;
+  ">PRO</div>
+
+  <!-- Tagline -->
+  <div style="
+    font-size:13px;
+    color:rgba(255,255,255,0.5);
+    margin-top:12px;
+    letter-spacing:0.05em;
+    animation:splash-tagline-in 0.8s ease forwards;
+    animation-delay:0.8s;
+    opacity:0;
+  ">Your all-in-one fitness companion</div>
+
+  <!-- Progress bar -->
+  <div style="
+    position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+    width:140px;height:3px;
+    background:rgba(76,175,80,0.15);
+    border-radius:2px;overflow:hidden;
+  ">
+    <div style="
+      height:100%;
+      background:linear-gradient(90deg,#2e7d46,#7ed9a0,#2e7d46);
+      border-radius:2px;
+      animation:splash-bar-fill 1.8s ease forwards, splash-bar-glow 1.8s ease;
+    "></div>
+  </div>
+
+  <!-- Version -->
+  <div style="
+    position:absolute;bottom:32px;
+    font-size:11px;color:rgba(255,255,255,0.2);
+    letter-spacing:0.1em;
+  ">v2.0</div>
+</div>
+
+<script>
+// Particles burst
+(function() {
+  var container = document.getElementById('splash-particles');
+  for (var i = 0; i < 20; i++) {
+    var p = document.createElement('div');
+    p.className = 'splash-particle';
+    var angle = (i / 20) * 360;
+    var dist = 80 + Math.random() * 120;
+    var px = Math.cos(angle * Math.PI/180) * dist + 'px';
+    var py = Math.sin(angle * Math.PI/180) * dist + 'px';
+    p.style.cssText = 'left:50%;top:40%;--px:'+px+';--py:'+py+';animation-delay:'+(Math.random()*0.5)+'s;background:'+(Math.random()>0.5?'#4caf50':'#7ed9a0');
+    container.appendChild(p);
+  }
+})();
+
+// Auto-hide after 2.2s
+window.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    var splash = document.getElementById('splash-screen');
+    if (splash) {
+      splash.classList.add('fade-out');
+      setTimeout(function() { 
+        if (splash && splash.parentNode) splash.parentNode.removeChild(splash); 
+      }, 700);
+    }
+  }, 2200);
+});
+</script>
+
+<div class="bg-mesh"></div>
+<div id="toast"></div>
+
+<!-- App Install Prompt Banner -->
+<div id="install-banner" class="hidden" style="
+  display:none;
+  position:fixed; bottom:90px; left:16px; right:16px; z-index:299;
+  background:linear-gradient(135deg,#1a2838,#0d2137);
+  border:1px solid rgba(30,136,229,0.4); border-radius:16px;
+  padding:16px; box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  max-width:448px; margin:0 auto;">
+  <div style="display:flex;align-items:flex-start;gap:12px">
+    <span style="font-size:28px;flex-shrink:0">📲</span>
+    <div style="flex:1">
+      <div style="font-weight:700;font-size:15px;margin-bottom:4px">Install FitFlow Pro</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">
+        Add to your home screen for the full app experience — works offline too!
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="triggerInstallPrompt()" style="flex:1">
+          Install 📲
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="dismissInstallBanner()">
+          Not Now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Push Notification Permission Banner — only shown on dashboard after login -->
+<div id="push-banner" class="hidden" style="
+  display:none;
+  position:fixed; bottom:90px; left:16px; right:16px; z-index:300;
+  background:linear-gradient(135deg,#1a3328,#0a3d1f);
+  border:1px solid var(--g3); border-radius:16px;
+  padding:16px; box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  max-width:448px; margin:0 auto;">
+  <div style="display:flex;align-items:flex-start;gap:12px">
+    <span style="font-size:28px;flex-shrink:0">🔔</span>
+    <div style="flex:1">
+      <div style="font-weight:700;font-size:15px;margin-bottom:4px">Daily Workout Reminders</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">
+        Get a fun motivational message every morning at 6 AM to kickstart your workout! 💪
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="acceptPushNotifications()" style="flex:1">
+          Enable 🔔
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="dismissPushNotifications()">
+          Not Now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: LOGIN                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-login" class="page active" style="min-height:100vh;justify-content:center;align-items:center;padding:24px">
+  <div style="width:100%;max-width:400px">
+
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:40px">
+      <div style="margin-bottom:12px;display:inline-block">
+        <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#43a05a;stop-opacity:1"/>
+              <stop offset="100%" style="stop-color:#2d7a3a;stop-opacity:1"/>
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <!-- Outer circle with pulse animation -->
+          <circle cx="40" cy="40" r="38" fill="url(#lg1)" opacity="0.15">
+            <animate attributeName="r" values="38;42;38" dur="3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.15;0.05;0.15" dur="3s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Main circle -->
+          <circle cx="40" cy="40" r="34" fill="url(#lg1)"/>
+          <!-- Lightning bolt - energy/fitness symbol (unisex) -->
+          <path d="M46 14 L30 42 L40 42 L34 66 L52 36 L41 36 Z" fill="white" filter="url(#glow)" opacity="0.95">
+            <animateTransform attributeName="transform" type="scale" values="1;1.05;1" dur="2s" repeatCount="indefinite" additive="sum" origin="40 40"/>
+          </path>
+          <!-- Orbit ring -->
+          <circle cx="40" cy="40" r="36" fill="none" stroke="#43a05a" stroke-width="1.5" opacity="0.4" stroke-dasharray="8 4">
+            <animateTransform attributeName="transform" type="rotate" from="0 40 40" to="360 40 40" dur="8s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+      <div class="display" style="font-size:52px;color:var(--g5);letter-spacing:0.04em">FITFLOW</div>
+      <div class="display" style="font-size:28px;color:var(--text3);margin-top:-8px;letter-spacing:0.1em">PRO</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:8px">Your all-in-one fitness companion</div>
+    </div>
+
+    <!-- Form -->
+    <form id="login-form" style="display:flex;flex-direction:column;gap:16px">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input id="login-email" type="email" class="form-input" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div style="position:relative">
+          <input id="login-password" type="password" class="form-input" placeholder="Enter password" autocomplete="current-password" style="padding-right:48px">
+          <button type="button" id="toggle-pass" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer">👁</button>
+        </div>
+      </div>
+      <div id="login-error" style="color:#ef9a9a;font-size:13px;min-height:18px"></div>
+      <button id="login-btn" type="submit" class="btn btn-primary btn-full btn-lg">Sign In</button>
+    </form>
+
+    <!-- Divider -->
+    <div style="display:flex;align-items:center;gap:12px;margin:20px 0 16px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:12px;color:var(--text3)">or continue with</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <!-- Google Sign In button — stylish animated -->
+    <style>
+      #google-signin-btn {
+        position:relative;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+        background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.15);
+        border-radius:50px;padding:13px 20px;font-size:14px;font-weight:600;cursor:pointer;
+        letter-spacing:.03em;overflow:hidden;transition:border-color .3s,transform .15s;
+      }
+      #google-signin-btn::before {
+        content:'';position:absolute;inset:0;border-radius:50px;opacity:0;
+        background:linear-gradient(135deg,rgba(66,133,244,.15),rgba(52,168,83,.15),rgba(251,188,5,.1),rgba(234,67,53,.15));
+        transition:opacity .4s;
+      }
+      #google-signin-btn:hover::before { opacity:1; }
+      #google-signin-btn:hover { border-color:rgba(255,255,255,0.35);transform:translateY(-1px); }
+      #google-signin-btn:active { transform:scale(0.98); }
+      #google-signin-btn .g-spinner {
+        display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);
+        border-top-color:#fff;border-radius:50%;
+        animation:gspin .7s linear infinite;
+      }
+      @keyframes gspin { to { transform:rotate(360deg); } }
+      #google-signin-btn.loading .g-icon { display:none; }
+      #google-signin-btn.loading .g-spinner { display:block; }
+      #google-signin-btn.loading .g-label { opacity:.6; }
+    </style>
+
+    <button id="google-signin-btn" onclick="signInWithGoogle()" type="button">
+      <span class="g-icon" style="display:flex;align-items:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+      </span>
+      <span class="g-spinner"></span>
+      <span class="g-label">Continue with Google</span>
+    </button>
+
+    <!-- Hidden Google One Tap div -->
+    <div id="g_id_onload"
+      data-client_id="255447439211-c769706kdp6g4vjuagf8t2uenkl5qhr8.apps.googleusercontent.com"
+      data-callback="handleGoogleLogin"
+      data-auto_prompt="false"
+      style="display:none">
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: MOTIVATIONAL QUOTE                                         -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-quote" class="page" style="min-height:100vh;justify-content:center;align-items:center;padding:32px;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(46,125,70,0.2) 0%,transparent 70%)">
+  <div style="width:100%;max-width:400px;text-align:center">
+    <div id="quote-greeting" style="font-size:16px;color:var(--text2);margin-bottom:32px;font-weight:500"></div>
+    <div style="font-size:56px;margin-bottom:24px">💪</div>
+    <blockquote id="quote-text" class="display" style="font-size:30px;color:var(--text);line-height:1.25;margin-bottom:16px;letter-spacing:0.02em"></blockquote>
+    <div id="quote-author" style="font-size:14px;color:var(--text3);font-style:italic;margin-bottom:48px"></div>
+    <button id="ready-btn" class="btn btn-accent btn-full btn-lg" style="font-size:18px">
+      💥 Are You Ready for the Day?
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: DASHBOARD                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-dashboard" class="page">
+  <div class="scroll-content pb-nav">
+    <div class="container" style="padding-top:20px">
+
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+        <div>
+          <div class="display" style="font-size:36px;color:var(--g5);line-height:1">FITFLOW <span style="color:var(--text3)">PRO</span></div>
+          <div id="dash-today-day" style="font-size:13px;color:var(--text3);margin-top:3px"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="streak-pill">🔥 <span id="dash-streak">0</span> days</div>
+          <button onclick="toggleProfileMenu()" id="profile-btn" style="width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--border);font-size:16px;cursor:pointer;position:relative">👤</button>
+        <!-- Profile dropdown -->
+        <div id="profile-menu" style="display:none;position:absolute;top:60px;right:16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:6px;z-index:200;min-width:160px;box-shadow:var(--shadow)">
+          <div style="padding:10px 12px 8px;border-bottom:1px solid var(--border);margin-bottom:4px">
+            <div id="profile-menu-name" style="font-weight:700;font-size:14px"></div>
+            <div id="profile-menu-email" style="font-size:11px;color:var(--text3)"></div>
+          </div>
+          <button onclick="openProfilePage()" style="width:100%;text-align:left;padding:10px 12px;background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;border-radius:8px;font-family:var(--font-body)">👤 My Profile</button>
+          <button onclick="openFeedbackModal()" style="width:100%;text-align:left;padding:10px 12px;background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;border-radius:8px;font-family:var(--font-body)">💬 Send Feedback</button>
+          <button onclick="openChangePasswordModal()" style="width:100%;text-align:left;padding:10px 12px;background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;border-radius:8px;font-family:var(--font-body)">🔑 Change Password</button>
+          <button onclick="toggleNotificationSetting()" id="notif-toggle-btn" style="width:100%;text-align:left;padding:10px 12px;background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;border-radius:8px;font-family:var(--font-body)">🔔 Daily Reminders</button>
+          <button onclick="logout()" style="width:100%;text-align:left;padding:10px 12px;background:none;border:none;color:#ef9a9a;font-size:14px;cursor:pointer;border-radius:8px;font-family:var(--font-body)">🚪 Sign Out</button>
+        </div>
+        </div>
+      </div>
+
+      <!-- Greeting + ring -->
+      <div class="card" style="background:linear-gradient(135deg,var(--g1),var(--bg2));margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div id="dash-greeting" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+          <div style="font-size:13px;color:var(--text2)">Keep pushing! You're doing great.</div>
+        </div>
+        <div style="position:relative;width:64px;height:64px;flex-shrink:0">
+          <svg width="64" height="64" viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="30" fill="none" stroke="var(--bg3)" stroke-width="6"/>
+            <circle id="dash-ring" cx="32" cy="32" r="30" fill="none" stroke="var(--g4)" stroke-width="6"
+              stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:32px 32px;transition:stroke-dashoffset 0.8s"/>
+          </svg>
+          <div id="dash-ring-pct" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--g5)">0%</div>
+        </div>
+      </div>
+
+      <!-- Quick stats -->
+      <div class="stat-row" style="margin-bottom:20px">
+        <div class="stat-card"><div class="stat-val" id="dash-total">0</div><div class="stat-label">Total Workouts</div></div>
+        <div class="stat-card"><div class="stat-val" id="dash-week">0</div><div class="stat-label">This Week</div></div>
+      </div>
+
+      <!-- Admin Announcement Banner -->
+      <div id="dash-announcement" style="display:none;margin-bottom:16px"></div>
+
+      <!-- Module grid -->
+      <div class="section-title">Today's Modules</div>
+      <div id="module-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px"></div>
+      <div class="reorder-hint">⠿ Hold &amp; drag to reorder activities</div>
+
+      <!-- Custom Workouts & Weekly Report row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;margin-bottom:20px">
+        <div class="card" style="cursor:pointer;background:linear-gradient(135deg,#1a2838,#0d2137);padding:18px 14px" onclick="if(typeof openCustomWorkouts==='function'){openCustomWorkouts();}else{showPage('page-custom-workouts');if(typeof renderCustomWorkoutsList==='function')renderCustomWorkoutsList();}">
+          <div style="font-size:28px;margin-bottom:8px">✏️</div>
+          <div style="font-weight:700;font-size:14px">My Workouts</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px">Create custom routines</div>
+          <div id="cw-count-badge" style="margin-top:10px"></div>
+        </div>
+        <div class="card" style="cursor:pointer;background:linear-gradient(135deg,#2d1a1a,#3d1f0a);padding:18px 14px" onclick="if(typeof openWeeklyReport==='function'){openWeeklyReport();}else{showPage('page-weekly-report');if(typeof renderWeeklyReport==='function')renderWeeklyReport();}">
+          <div style="font-size:28px;margin-bottom:8px">📊</div>
+          <div style="font-weight:700;font-size:14px">Weekly Report</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px">Your week at a glance</div>
+          <div id="wr-streak-badge" style="margin-top:10px"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px">
+    <button class="nav-item active" data-nav="home" onclick="navTo('home')"><span class="nav-icon">🏠</span>Home</button>
+    <button class="nav-item" data-nav="history" onclick="navTo('history')"><span class="nav-icon">📅</span>History</button>
+    <button class="nav-item" data-nav="running" onclick="navTo('running')"><span class="nav-icon">🏃</span>Run</button>
+    <button id="nav-myplan" class="nav-item" data-nav="myplan" onclick="navTo('myplan')" style="display:none"><span class="nav-icon" id="nav-myplan-icon">🎯</span><span id="nav-myplan-label">My Plan</span></button>
+    <button id="nav-admin" class="nav-item" data-nav="admin" onclick="navTo('admin')" style="display:none"><span class="nav-icon">⚙️</span>Admin</button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: MODULE                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-module" class="page">
+  <div class="scroll-content pb-nav">
+
+    <!-- Top bar -->
+    <div class="top-bar" style="padding:16px 16px 0">
+      <button class="back-btn" onclick="showPage('page-dashboard');refreshDashboard()">‹</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span id="module-emoji-header" style="font-size:24px"></span>
+        <span id="module-title" class="top-bar-title"></span>
+      </div>
+      <div style="width:38px"></div>
+    </div>
+
+    <div class="container" style="padding-top:16px">
+
+      <!-- Day strip -->
+      <div id="day-tab-strip" class="tab-strip" style="margin-bottom:16px"></div>
+
+      <!-- Module inner tabs -->
+      <div class="tab-strip" style="margin-bottom:16px">
+        <button class="tab-btn module-inner-tab active" onclick="switchModuleTab('workout',this)">💪 Workout</button>
+        <button class="tab-btn module-inner-tab" onclick="switchModuleTab('hydration',this)">💧 Hydration</button>
+        <button class="tab-btn module-inner-tab" onclick="switchModuleTab('diet',this)">🥗 Diet</button>
+        <button class="tab-btn module-inner-tab" onclick="switchModuleTab('history',this)">📅 History</button>
+      </div>
+
+      <!-- Workout tab -->
+      <div id="module-workout-tab" class="module-tab-content active">
+        <div id="exercises-list" style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px"></div>
+        <button id="complete-day-btn" class="btn btn-primary btn-full" onclick="completeDay()" style="margin-bottom:20px">Mark Day Complete</button>
+      </div>
+
+      <!-- Hydration tab -->
+      <div id="module-hydration-tab" class="module-tab-content">
+        <div id="hydration-tab-content"></div>
+      </div>
+
+      <!-- Diet tab -->
+      <div id="module-diet-tab" class="module-tab-content">
+        <div id="diet-tab-content"></div>
+      </div>
+
+      <!-- History tab -->
+      <div id="module-history-tab" class="module-tab-content">
+        <div id="history-tab-content"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: RUNNING                                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- Leaflet CSS is loaded in <head> -->
+
+<div id="page-running" class="page" style="flex-direction:column;overflow:hidden">
+
+  <!-- ═══ IDLE STATE — full scrollable page ═══════════════════════ -->
+  <div id="run-idle" style="display:flex;flex-direction:column;flex:1;overflow-y:auto">
+
+    <!-- Top bar -->
+    <div class="top-bar" style="flex-shrink:0">
+      <button class="back-btn" onclick="showPage('page-dashboard');refreshDashboard()">‹</button>
+      <div class="top-bar-title" id="run-page-title">🏃 Activities</div>
+      <div style="width:38px"></div>
+    </div>
+
+    <!-- Run tabs (only visible when idle) -->
+    <div style="padding:0 16px 0;flex-shrink:0">
+      <div class="tab-strip">
+        <button class="tab-btn run-tab-btn active" data-tab="log"          onclick="renderRunningTabs('log')">📍 Log</button>
+        <button class="tab-btn run-tab-btn"         data-tab="plans"        onclick="renderRunningTabs('plans')">📋 Plans</button>
+        <button class="tab-btn run-tab-btn"         data-tab="history"      onclick="renderRunningTabs('history')">📊 History</button>
+        <button class="tab-btn run-tab-btn"         data-tab="achievements" onclick="renderRunningTabs('achievements')">🏅 Badges</button>
+        <button class="tab-btn run-tab-btn"         data-tab="hydration"    onclick="renderRunningTabs('hydration')">💧 Hydration</button>
+        <button class="tab-btn run-tab-btn"         data-tab="diet"         onclick="renderRunningTabs('diet')">🥗 Diet</button>
+      </div>
+    </div>
+
+    <!-- Tab contents -->
+    <div style="flex:1">
+
+      <!-- LOG TAB -->
+      <div id="run-tab-log" class="run-tab-content active" style="padding:16px">
+
+        <!-- Activity type selector -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:12px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Activity Type</div>
+          <div style="display:flex;gap:10px">
+            <button class="activity-pill active" data-type="run"   onclick="selectActivityType('run',this)">🏃 Run</button>
+            <button class="activity-pill"        data-type="walk"  onclick="selectActivityType('walk',this)">🚶 Walk</button>
+            <button class="activity-pill"        data-type="cycle" onclick="selectActivityType('cycle',this)">🚴 Cycle</button>
+          </div>
+        </div>
+
+        <!-- Start card -->
+        <div class="card" style="text-align:center;padding:32px 24px;background:linear-gradient(135deg,var(--bg2),var(--surface));margin-bottom:14px">
+          <div style="font-size:56px;margin-bottom:12px" id="run-idle-emoji">🏃</div>
+          <div class="display" style="font-size:38px;color:var(--g5);margin-bottom:6px" id="run-idle-label">START A RUN</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5">GPS-tracked distance, live map, real-time pace & speed.</div>
+          <button class="btn btn-primary btn-full btn-lg" onclick="startRun()">▶ Start</button>
+        </div>
+
+        <div class="card card-sm" style="background:rgba(240,192,64,0.06);border-color:rgba(240,192,64,0.2);margin-bottom:10px">
+          <div style="font-size:13px;color:var(--accent)">📍 Allow location access when prompted. Works in time-only mode without GPS.</div>
+        </div>
+        <div class="card card-sm" style="background:rgba(30,136,229,0.08);border-color:rgba(30,136,229,0.2)">
+          <div style="font-size:13px;color:#64b5f6">🔒 Timer &amp; distance show on the lock screen while running. Lock your phone freely!</div>
+        </div>
+      </div>
+
+      <!-- PLANS TAB -->
+      <div id="run-tab-plans" class="run-tab-content" style="padding:16px">
+        <div id="training-plans-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px"></div>
+        <div id="plan-detail" style="display:none"></div>
+      </div>
+
+      <!-- BADGES TAB -->
+      <div id="run-tab-achievements" class="run-tab-content" style="padding:16px">
+        <div id="run-achievements-content"></div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div id="run-tab-history" class="run-tab-content" style="padding:16px">
+        <div id="run-stats-row" style="margin-bottom:16px"></div>
+        <div class="section-title">Activity Log</div>
+        <div id="run-history-list"></div>
+      </div>
+
+      <!-- HYDRATION TAB -->
+      <div id="run-tab-hydration" class="run-tab-content">
+        <div id="run-hydration-content"></div>
+      </div>
+
+      <!-- DIET TAB -->
+      <div id="run-tab-diet" class="run-tab-content">
+        <div id="run-diet-content"></div>
+      </div>
+
+    </div>
+  </div><!-- /#run-idle -->
+
+  <!-- ═══ ACTIVE RUN STATE — full-screen live map ══════════════════ -->
+  <div id="run-active" class="hidden" style="display:flex;flex-direction:column;flex:1;position:relative;overflow:hidden">
+
+    <!-- Live map — fills entire background; pointer-events managed via CSS -->
+    <div id="run-live-map" style="position:absolute;inset:0;z-index:0"></div>
+
+    <!-- Top overlay: back + activity label + gps badge -->
+    <div style="position:absolute;top:0;left:0;right:0;z-index:20;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;
+      background:linear-gradient(to bottom,rgba(7,21,16,0.85) 0%,transparent 100%);
+      pointer-events:none">
+      <div style="pointer-events:auto">
+        <button class="back-btn" onclick="showPage('page-dashboard');refreshDashboard()"
+          style="background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.15)">‹</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;pointer-events:none">
+        <span id="run-active-label" style="font-size:15px;font-weight:700;color:#fff">🏃 Run</span>
+        <span id="run-gps-badge" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(67,160,90,0.85);color:#fff">GPS ●</span>
+      </div>
+      <div style="width:38px"></div>
+    </div>
+
+    <!-- Zoom buttons — right side, middle of screen -->
+    <div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:20;
+      display:flex;flex-direction:column;gap:8px;pointer-events:auto">
+      <button class="run-zoom-btn" onclick="_liveMapZoom(1)">+</button>
+      <button class="run-zoom-btn" onclick="_liveMapZoom(-1)">−</button>
+    </div>
+
+    <!-- Bottom stats panel — floats above map, full pointer-events -->
+    <div style="position:absolute;bottom:0;left:0;right:0;z-index:20;pointer-events:auto">
+
+      <!-- Stats card -->
+      <div style="margin:0 12px 10px;border-radius:20px;overflow:hidden;
+        background:rgba(7,21,16,0.92);backdrop-filter:blur(12px);
+        border:1px solid rgba(255,255,255,0.1);padding:20px 20px 16px">
+
+        <!-- Timer -->
+        <div style="text-align:center;margin-bottom:14px">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Elapsed Time</div>
+          <div class="run-timer" id="run-timer">00:00</div>
+        </div>
+
+        <!-- Stats row: distance / pace / speed / cal -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:16px">
+          <div class="run-stat">
+            <div class="val" id="run-dist">0.00</div>
+            <div class="lbl">KM</div>
+          </div>
+          <div class="run-stat">
+            <div class="val" id="run-pace">--:--</div>
+            <div class="lbl">PACE</div>
+          </div>
+          <div class="run-stat">
+            <div class="val" id="run-speed">0.0</div>
+            <div class="lbl">SPD KM/H</div>
+          </div>
+          <div class="run-stat">
+            <div class="val" id="run-cal">0</div>
+            <div class="lbl">KCAL</div>
+          </div>
+        </div>
+
+        <!-- Pause / Stop buttons -->
+        <div style="display:flex;gap:10px">
+          <button id="pause-run-btn" class="btn btn-outline btn-full" onclick="togglePauseRun()"
+            style="border-color:rgba(255,255,255,0.3);color:#fff;background:rgba(255,255,255,0.08)">⏸ Pause</button>
+          <button class="btn btn-danger btn-full" onclick="stopRun()">⏹ Stop</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#run-active -->
+
+  <!-- ═══ SUMMARY STATE — Strava-style post-activity screen ══════ -->
+  <div id="run-summary" class="hidden" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+
+    <!-- Edge-to-edge map — no top bar, no blank space -->
+    <div id="sum-route-map" style="height:260px;flex-shrink:0;position:relative;overflow:hidden;background:var(--bg2)">
+      <!-- Activity label overlaid on map top -->
+      <div style="position:absolute;top:12px;left:0;right:0;z-index:10;display:flex;justify-content:center;pointer-events:none">
+        <div style="background:rgba(7,21,16,0.85);backdrop-filter:blur(8px);border-radius:20px;
+          padding:8px 18px;border:1px solid rgba(255,255,255,0.12)">
+          <div id="sum-activity-label" style="font-size:15px;font-weight:700;color:#fff;text-align:center">🏅 Activity Complete!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scrollable stats body -->
+    <div style="flex:1;overflow-y:auto;padding:16px 16px 32px">
+
+      <!-- Strava-style stats grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px">
+        <div style="background:var(--surface);padding:14px 16px">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Distance</div>
+          <div style="font-size:24px;font-weight:700;color:var(--g5)" id="sum-dist">0.00 km</div>
+        </div>
+        <div style="background:var(--surface);padding:14px 16px">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Time</div>
+          <div style="font-size:24px;font-weight:700;color:var(--text)" id="sum-time">00:00</div>
+        </div>
+        <div style="background:var(--surface);padding:14px 16px">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Avg Pace /km</div>
+          <div style="font-size:24px;font-weight:700;color:var(--text)" id="sum-pace">--:--</div>
+        </div>
+        <div style="background:var(--surface);padding:14px 16px">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Avg Speed</div>
+          <div style="font-size:24px;font-weight:700;color:var(--text)" id="sum-speed">0.0 km/h</div>
+        </div>
+        <div style="background:var(--surface);padding:14px 16px;grid-column:span 2">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Calories Burned</div>
+          <div style="font-size:24px;font-weight:700;color:var(--text)" id="sum-cal">0 kcal</div>
+        </div>
+      </div>
+
+      <!-- Encouraging / PB message -->
+      <div id="sum-pb-badges" style="margin-bottom:14px"></div>
+
+      <!-- Km splits -->
+      <div id="sum-km-splits" style="margin-bottom:14px"></div>
+
+      <!-- Save / Discard / Share -->
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" onclick="discardRun()" style="flex:1">Discard</button>
+        <button class="btn btn-ghost" onclick="shareRun()" style="flex:1" id="share-run-btn">📤 Share</button>
+        <button class="btn btn-accent" onclick="saveRun()" style="flex:1">💾 Save</button>
+      </div>
+
+    </div>
+  </div><!-- /#run-summary -->
+
+  <!-- ═══ SAVE ACTIVITY SCREEN ═════════════════════════════════ -->
+  <div id="run-save-screen" class="hidden" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px 10px;
+      background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0">
+      <button onclick="document.getElementById('run-save-screen').classList.add('hidden');
+        document.getElementById('run-summary').classList.remove('hidden');"
+        style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border);
+          background:var(--surface);color:var(--text);font-size:18px;cursor:pointer;
+          display:flex;align-items:center;justify-content:center;flex-shrink:0">‹</button>
+      <div style="font-size:17px;font-weight:700;flex:1">Save Activity</div>
+      <button onclick="saveRun()"
+        style="padding:8px 20px;border-radius:20px;border:none;
+          background:var(--g4);color:#fff;font-size:14px;font-weight:700;cursor:pointer">
+        Save
+      </button>
+    </div>
+
+    <!-- Scrollable body -->
+    <div style="flex:1;overflow-y:auto;padding:16px">
+
+      <!-- Activity title input -->
+      <input id="save-activity-title" type="text" maxlength="60"
+        style="width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);
+          background:var(--surface);color:var(--text);font-size:16px;font-weight:600;
+          margin-bottom:12px;box-sizing:border-box;outline:none"
+        placeholder="Activity name"
+        onfocus="this.style.borderColor='var(--g4)'"
+        onblur="this.style.borderColor='var(--border)'"/>
+
+      <!-- Description -->
+      <textarea id="save-activity-desc" rows="3" maxlength="300"
+        style="width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);
+          background:var(--surface);color:var(--text);font-size:14px;resize:none;
+          margin-bottom:16px;box-sizing:border-box;outline:none;line-height:1.5"
+        placeholder="How'd it go? Add a note about your activity..."
+        onfocus="this.style.borderColor='var(--g4)'"
+        onblur="this.style.borderColor='var(--border)'"></textarea>
+
+      <!-- Activity type badge -->
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;
+        background:var(--surface);border-radius:14px;border:1px solid var(--border);
+        margin-bottom:12px" id="save-activity-type-row">
+        <span style="font-size:22px" id="save-type-emoji">🏃</span>
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:2px">Activity Type</div>
+          <div style="font-size:15px;font-weight:600" id="save-type-label">Run</div>
+        </div>
+      </div>
+
+      <!-- Stats summary strip -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px"
+        id="save-stats-strip">
+        <!-- filled by showSaveActivity() -->
+      </div>
+
+      <!-- Discard link -->
+      <div style="text-align:center;padding:8px 0">
+        <button onclick="discardRun()"
+          style="background:none;border:none;color:var(--text3);font-size:14px;
+            cursor:pointer;text-decoration:underline">
+          Discard Activity
+        </button>
+      </div>
+
+    </div>
+  </div><!-- /#run-save-screen -->
+
+</div><!-- /page-running -->
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: MY PLAN                                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-my-plan" class="page">
+  <div class="page-header">
+    <button class="back-btn" onclick="navTo('home')">←</button>
+    <h2 id="myplan-title">🎯 My Plan</h2>
+    <div></div>
+  </div>
+  <div class="scroll-content" style="padding:16px">
+    <div id="myplan-content">
+      <div class="loader-wrap"><div class="loader"></div></div>
+    </div>
+  </div>
+</div><!-- /page-my-plan -->
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: GLOBAL HISTORY                                             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-history-global" class="page">
+  <div class="scroll-content pb-nav">
+    <div class="top-bar">
+      <button class="back-btn" onclick="navTo('home')">‹</button>
+      <div class="top-bar-title">📅 Activity History</div>
+      <div style="width:38px"></div>
+    </div>
+    <div class="container" style="padding-top:16px">
+      <div id="history-stats" style="margin-bottom:20px"></div>
+
+      <!-- Month navigation -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <button class="btn btn-ghost btn-sm" onclick="changeHistoryMonth(-1)" style="font-size:18px;padding:6px 14px">‹</button>
+        <div id="history-month-label" class="section-title" style="margin:0"></div>
+        <button class="btn btn-ghost btn-sm" onclick="changeHistoryMonth(1)" id="history-next-btn" style="font-size:18px;padding:6px 14px">›</button>
+      </div>
+
+      <div class="card" style="margin-bottom:16px" id="history-cal"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="section-title" style="margin:0" id="history-log-title">Activity Log</div>
+        <div style="font-size:11px;color:var(--text3)">Tap a date above</div>
+      </div>
+      <div id="history-log"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Day Detail Modal -->
+<div id="modal-day-detail" class="modal-overlay">
+  <div class="modal-sheet" style="max-height:80vh;overflow-y:auto;padding:0">
+    <div class="modal-handle" style="margin:12px auto 0"></div>
+    <div id="day-detail-content" style="padding:16px 16px 8px"></div>
+    <div style="padding:0 16px 16px">
+      <button class="btn btn-outline btn-full" onclick="closeModal('modal-day-detail')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: ADMIN                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-admin" class="page">
+  <div class="scroll-content" style="padding-bottom:24px">
+
+    <!-- Admin Header -->
+    <div style="background:linear-gradient(135deg,var(--g1),var(--bg2));padding:24px 16px 20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <div class="display" style="font-size:32px;color:var(--g5)">ADMIN PANEL</div>
+          <div style="font-size:13px;color:var(--text3);margin-top:2px" id="admin-user-name"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button onclick="openChangePasswordModal()" style="background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:8px 14px;color:var(--text2);font-size:13px;cursor:pointer">🔑 Password</button>
+          <button onclick="logout()" style="background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:8px 14px;color:var(--text2);font-size:13px;cursor:pointer">Sign Out</button>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
+        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px 8px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:28px;color:var(--g5)" id="admin-stat-users">—</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Users</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px 8px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:28px;color:var(--g5)" id="admin-stat-today">0</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Today Active</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px 8px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:28px;color:var(--g5)" id="admin-stat-workouts">0</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Workouts</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px 8px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:28px;color:var(--g5)" id="admin-stat-runs">0</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Runs</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px 8px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:28px;color:var(--g5)" id="admin-stat-custom">0</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Custom WOs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding-top:16px">
+
+      <!-- Admin tabs -->
+      <div class="tab-strip" style="margin-bottom:16px;overflow-x:auto">
+        <button class="tab-btn admin-tab-btn active" onclick="switchAdminTab('users',this)">👥 Users</button>
+        <button class="tab-btn admin-tab-btn" onclick="switchAdminTab('analytics',this)">📊 Analytics</button>
+        <button class="tab-btn admin-tab-btn" onclick="switchAdminTab('history',this)">📋 History</button>
+        <button class="tab-btn admin-tab-btn" onclick="switchAdminTab('custom',this)">✏️ Custom WOs</button>
+        <button class="tab-btn admin-tab-btn" onclick="switchAdminTab('feedback',this)">💬 Feedback</button>
+        <button class="tab-btn admin-tab-btn" onclick="switchAdminTab('announce',this)">📣 Announce</button>
+        <button class="tab-btn admin-tab-btn" onclick="switchAdminTab('content',this)">🗂 Content</button>
+      </div>
+
+      <!-- USERS tab -->
+      <div id="admin-tab-users" class="admin-tab-content">
+        <button class="btn btn-primary btn-full" onclick="openAddUser()" style="margin-bottom:16px">+ Add New User</button>
+        <div id="admin-users-list"></div>
+      </div>
+
+      <!-- ANALYTICS tab -->
+      <div id="admin-tab-analytics" class="admin-tab-content" style="display:none">
+        <div id="admin-analytics-content"></div>
+      </div>
+
+      <!-- HISTORY tab -->
+      <div id="admin-tab-history" class="admin-tab-content" style="display:none">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px">All activity across all users — workouts, runs and custom sessions.</div>
+        <div id="all-history-list"></div>
+      </div>
+
+      <!-- CUSTOM WORKOUTS tab -->
+      <div id="admin-tab-custom" class="admin-tab-content" style="display:none">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">
+          All custom workout routines created by users. Shows exercise list and completion count per routine.
+        </div>
+        <div id="admin-custom-workouts-list"></div>
+      </div>
+
+
+
+      <!-- FEEDBACK tab -->
+      <div id="admin-tab-feedback" class="admin-tab-content" style="display:none">
+        <div id="feedback-list"></div>
+      </div>
+
+      <!-- ANNOUNCE tab -->
+      <div id="admin-tab-announce" class="admin-tab-content" style="display:none">
+        <div id="admin-announce-content"></div>
+      </div>
+
+      <!-- CONTENT tab -->
+      <div id="admin-tab-content" class="admin-tab-content" style="display:none">
+        <div id="content-links-list"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MODALS                                                           -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<!-- Change Password Modal (logged-in users & admin) -->
+<div id="modal-change-password" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:48px;margin-bottom:10px">🔑</div>
+      <div class="modal-title" style="margin-bottom:4px">Change Password</div>
+      <div style="font-size:14px;color:var(--text2)">Enter your current password to confirm, then set a new one.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Current Password</label>
+        <div style="position:relative">
+          <input id="cp-current" type="password" class="form-input" placeholder="Your current password" autocomplete="current-password" style="padding-right:48px">
+          <button type="button" onclick="toggleCpVisibility('cp-current',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer">👁</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">New Password</label>
+        <div style="position:relative">
+          <input id="cp-new" type="password" class="form-input" placeholder="Minimum 6 characters" autocomplete="new-password" style="padding-right:48px">
+          <button type="button" onclick="toggleCpVisibility('cp-new',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer">👁</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm New Password</label>
+        <input id="cp-confirm" type="password" class="form-input" placeholder="Re-enter new password" autocomplete="new-password">
+      </div>
+      <!-- Password strength bar -->
+      <div id="cp-strength-wrap" style="display:none">
+        <div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:4px">
+          <div id="cp-strength-bar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div>
+        </div>
+        <div id="cp-strength-label" style="font-size:11px;color:var(--text3)"></div>
+      </div>
+      <div id="cp-error" style="color:#ef9a9a;font-size:13px;min-height:16px"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline btn-full" onclick="closeModal('modal-change-password')">Cancel</button>
+        <button id="cp-submit-btn" class="btn btn-primary btn-full" onclick="submitChangePassword()">Update Password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Set Password Modal (First Login) -->
+<div id="modal-set-password" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:48px;margin-bottom:10px">🔐</div>
+      <div class="modal-title" style="margin-bottom:4px">Set Your Password</div>
+      <div style="font-size:14px;color:var(--text2)">
+        Welcome, <strong id="set-pass-name"></strong>!<br>
+        Create a personal password to continue.
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">New Password</label>
+        <input id="new-pass-input" type="password" class="form-input" placeholder="Minimum 6 characters" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input id="confirm-pass-input" type="password" class="form-input" placeholder="Re-enter password" autocomplete="new-password">
+      </div>
+      <div id="set-pass-error" style="color:#ef9a9a;font-size:13px;min-height:16px"></div>
+      <button id="set-pass-btn" class="btn btn-accent btn-full btn-lg" onclick="submitNewPassword()">
+        Set Password &amp; Continue →
+      </button>
+      <div style="font-size:12px;color:var(--text3);text-align:center">
+        Your temporary password will be replaced. This cannot be undone.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Per-User Progress Modal (Admin) -->
+<div id="modal-user-progress" class="modal-overlay">
+  <div class="modal-sheet" style="max-height:85vh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div id="user-progress-content"></div>
+    <button class="btn btn-outline btn-full" style="margin-top:12px" onclick="closeModal('modal-user-progress')">Close</button>
+  </div>
+</div>
+
+<!-- Admin Reset User Password Modal -->
+<div id="modal-admin-reset-password" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:48px;margin-bottom:10px">🔑</div>
+      <div class="modal-title" style="margin-bottom:4px">Reset Password</div>
+      <div style="font-size:14px;color:var(--text2)">
+        Setting a new password for <strong id="arp-user-name"></strong>.<br>
+        Share the new password with them securely.
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">New Password</label>
+        <input id="arp-new-pass" type="text" class="form-input" placeholder="Minimum 6 characters" autocomplete="off">
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">📌 Visible so you can copy and share it with the user.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input id="arp-confirm-pass" type="text" class="form-input" placeholder="Re-enter password" autocomplete="off">
+      </div>
+      <!-- Force change on login (admin fix) -->
+      <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(46,125,70,0.1);border-radius:10px;border:1px solid rgba(46,125,70,0.25)">
+        <input type="checkbox" id="arp-force-change" checked style="width:18px;height:18px;accent-color:var(--g4);flex-shrink:0">
+        <div>
+          <div style="font-size:13px;font-weight:600">Force change on login</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">User will be prompted to set their own password when they next log in</div>
+        </div>
+      </div>
+      <div id="arp-error" style="color:#ef9a9a;font-size:13px;min-height:16px"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline btn-full" onclick="closeModal('modal-admin-reset-password')">Cancel</button>
+        <button id="arp-submit-btn" class="btn btn-primary btn-full" onclick="submitAdminResetPassword()">Reset Password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="modal-add-user" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add New User</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5">
+      The user will log in with their email and the temporary password below.<br>
+      <strong style="color:var(--accent)">They will be forced to set their own password on first login.</strong>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input id="new-user-name" type="text" class="form-input" placeholder="e.g. Ravi Kumar">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input id="new-user-email" type="email" class="form-input" placeholder="user@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Temporary Password</label>
+        <input id="new-user-pass" type="text" class="form-input" placeholder="e.g. Welcome@123">
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">📌 Share this with the user. They must change it on first login.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <select id="new-user-role" class="form-input">
+          <option value="USER">User</option>
+          <option value="ADMIN">Admin</option>
+        </select>
+      </div>
+      <div id="new-user-error" style="color:#ef9a9a;font-size:13px;min-height:16px"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline btn-full" onclick="closeModal('modal-add-user')">Cancel</button>
+        <button id="save-user-btn" class="btn btn-primary btn-full" onclick="saveNewUser()">Create User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Content Editor Modal -->
+<div id="modal-content-editor" class="modal-overlay">
+  <div class="modal-sheet" style="max-height:80vh">
+    <div class="modal-handle"></div>
+    <div id="content-editor-title" class="modal-title">Edit Content</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Edit JSON content below. Saves for all users.</div>
+    <textarea id="content-editor-text" class="form-input" style="min-height:200px;font-family:var(--font-mono);font-size:12px;line-height:1.5"></textarea>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="btn btn-outline btn-full" onclick="closeModal('modal-content-editor')">Cancel</button>
+      <button class="btn btn-primary btn-full" onclick="saveContentEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheets Config Modal -->
+<div id="modal-sheets-config" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔗 Google Sheets Config</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">
+      Paste your Google Apps Script <strong>Web App URL</strong> below.<br>
+      This is <strong style="color:var(--accent)">required</strong> for user creation and login to work.
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Apps Script Web App URL</label>
+        <input id="sheets-url" type="url" class="form-input" placeholder="https://script.google.com/macros/s/…/exec">
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="testSheetsConnection()">🔍 Test Connection</button>
+        <button class="btn btn-primary btn-full" onclick="saveSheetsConfig()">💾 Save URL</button>
+      </div>
+      <div style="font-size:12px;color:var(--text3);line-height:1.6;padding:10px;background:var(--bg3);border-radius:8px">
+        <strong>How to get the URL:</strong><br>
+        1. Open Google Sheet → Extensions → Apps Script<br>
+        2. Paste the google-apps-script.js code<br>
+        3. Run <code>setupSheets()</code> once<br>
+        4. Deploy → New Deployment → Web App<br>
+        5. Execute as: <strong>Me</strong> | Access: <strong>Anyone</strong><br>
+        6. Copy the URL and paste above
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Feedback Modal -->
+<div id="modal-feedback" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💬 Send Feedback</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Help us improve FitFlow Pro! Your feedback goes to the admin.</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select id="feedback-category" class="form-input">
+          <option value="General">General</option>
+          <option value="Bug Report">Bug Report</option>
+          <option value="Feature Request">Feature Request</option>
+          <option value="Workout Content">Workout Content</option>
+          <option value="App Performance">App Performance</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rating</label>
+        <div style="display:flex;gap:10px;padding:6px 0" id="star-rating">
+          <span onclick="setRating(1)" class="star" style="font-size:28px;cursor:pointer;opacity:0.4">⭐</span>
+          <span onclick="setRating(2)" class="star" style="font-size:28px;cursor:pointer;opacity:0.4">⭐</span>
+          <span onclick="setRating(3)" class="star" style="font-size:28px;cursor:pointer;opacity:0.4">⭐</span>
+          <span onclick="setRating(4)" class="star" style="font-size:28px;cursor:pointer;opacity:0.4">⭐</span>
+          <span onclick="setRating(5)" class="star" style="font-size:28px;cursor:pointer;opacity:0.4">⭐</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Message</label>
+        <textarea id="feedback-message" class="form-input" rows="4" placeholder="Tell us what you think, what's working great, or what could be better…"></textarea>
+      </div>
+      <div id="feedback-error" style="color:#ef9a9a;font-size:13px;min-height:16px"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline btn-full" onclick="closeModal('modal-feedback')">Cancel</button>
+        <button id="feedback-submit-btn" class="btn btn-primary btn-full" onclick="submitFeedback()">Send Feedback</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Quote Modal -->
+<div id="modal-add-quote" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💬 Add Motivational Quote</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px">This quote will appear on users' daily motivation screen.</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Quote Text</label>
+        <textarea id="new-quote-text" class="form-input" placeholder="Enter the motivational quote…" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Author (optional)</label>
+        <input id="new-quote-author" type="text" class="form-input" placeholder="e.g. Arnold Schwarzenegger">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline btn-full" onclick="closeModal('modal-add-quote')">Cancel</button>
+        <button class="btn btn-primary btn-full" onclick="saveNewQuote()">Add Quote</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: USER PROFILE                                              -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-profile" class="page">
+  <div class="scroll-content pb-nav">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()">‹</button>
+      <div class="top-bar-title">👤 My Profile</div>
+      <div style="width:38px"></div>
+    </div>
+    <div id="profile-content" class="container" style="padding-top:16px"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: ONBOARDING                                                -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-onboarding" class="page" style="min-height:100vh">
+  <div class="scroll-content" style="padding-bottom:32px">
+    <div id="onboarding-content" style="padding:0"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MODAL: Plan Completion Certificate                              -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="modal-plan-complete" class="modal-overlay">
+  <div class="modal-sheet" style="text-align:center">
+    <div class="modal-handle"></div>
+    <div id="plan-complete-content"></div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-outline btn-full" onclick="closeModal('modal-plan-complete')">Close</button>
+      <button class="btn btn-accent btn-full" onclick="sharePlanCertificate()">🎉 Share</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SCRIPTS                                                          -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- Clear OLD service worker caches (keeps current fitflow-v18) -->
+<script>
+  if ('serviceWorker' in navigator && window.caches) {
+    caches.keys().then(function(keys) {
+      keys.forEach(function(k) {
+        // Only delete caches that are NOT the current version
+        if (k !== 'fitflow-v18') caches.delete(k);
+      });
+    });
+  }
+</script>
+<script src="js/data.js?v=42"></script>
+<script src="js/data-cali.js?v=42"></script>
+<script src="js/app.js?v=42"></script>
+<script src="js/auth.js?v=42"></script>
+<script src="js/dashboard.js?v=42"></script>
+<script src="js/running.js?v=42"></script>
+<script src="js/admin.js?v=42"></script>
+<script src="push.js?v=42"></script>
+<script src="js/custom-workouts.js?v=42"></script>
+<script src="js/weekly-report.js?v=42"></script>
+<script>
+
+// ── PROFILE DROPDOWN ──────────────────────────────────────────
+function toggleProfileMenu() {
+  const menu = document.getElementById('profile-menu');
+  const isOpen = menu.style.display === 'block';
+  if (!isOpen) {
+    const u = APP.currentUser;
+    document.getElementById('profile-menu-name').textContent  = u?.name  || '';
+    document.getElementById('profile-menu-email').textContent = u?.email || '';
+    // Refresh reminder button state when menu opens
+    if (typeof updateReminderBtn === 'function') updateReminderBtn();
+  }
+  menu.style.display = isOpen ? 'none' : 'block';
+}
+document.addEventListener('click', e => {
+  const btn  = document.getElementById('profile-btn');
+  const menu = document.getElementById('profile-menu');
+  if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+
+// ── FEEDBACK ──────────────────────────────────────────────────
+let _currentRating = 0;
+function setRating(n) {
+  _currentRating = n;
+  document.querySelectorAll('.star').forEach((s,i) => s.style.opacity = i < n ? '1' : '0.35');
+}
+function openFeedbackModal() {
+  document.getElementById('profile-menu').style.display = 'none';
+  document.getElementById('feedback-message').value = '';
+  document.getElementById('feedback-category').value = 'General';
+  document.getElementById('feedback-error').textContent = '';
+  _currentRating = 0;
+  document.querySelectorAll('.star').forEach(s => s.style.opacity = '0.35');
+  openModal('modal-feedback');
+}
+async function submitFeedback() {
+  const message  = document.getElementById('feedback-message').value.trim();
+  const category = document.getElementById('feedback-category').value;
+  const errEl    = document.getElementById('feedback-error');
+  const btn      = document.getElementById('feedback-submit-btn');
+  errEl.textContent = '';
+  if (!message) { errEl.textContent = 'Please write a message before submitting.'; return; }
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const user = APP.currentUser;
+  const res = await Sheets.post('submitFeedback', {
+    userId:   user?.id   || '',
+    name:     user?.name || 'Anonymous',
+    email:    user?.email|| '',
+    category, rating: _currentRating, message,
+    date: todayStr(),
+    timestamp: new Date().toISOString()
+  });
+  btn.disabled = false; btn.textContent = 'Send Feedback';
+  if (res === null) {
+    errEl.textContent = 'Sheets not configured — but thanks for your feedback!';
+    setTimeout(() => closeModal('modal-feedback'), 2000);
+  } else if (res?.success) {
+    closeModal('modal-feedback');
+    showToast('Thanks for your feedback! 🙏', 'success');
+  } else {
+    errEl.textContent = res?.error || 'Failed to send. Try again.';
+  }
+}
+
+// switchAdminTab is defined in admin.js — removed duplicate here
+
+function goBackFromEditor() {
+  if (AdminEdit.isDirty) {
+    if (!confirm('You have unsaved changes. Leave anyway?')) return;
+  }
+  AdminEdit.isDirty = false;
+  showPage('page-admin', false);
+  renderAdminPanel();
+  // Find the Content tab button by its text and switch to it
+  const contentBtn = Array.from(document.querySelectorAll('.admin-tab-btn'))
+    .find(b => b.textContent.includes('Content'));
+  if (contentBtn) switchAdminTab('content', contentBtn);
+}
+
+function fillDemo(email, pass) {
+  document.getElementById('login-email').value = email;
+  document.getElementById('login-password').value = pass;
+}
+
+async function toggleNotificationSetting() {
+  document.getElementById('profile-menu').style.display = 'none';
+
+  if (typeof PUSH === 'undefined') {
+    showToast('Notification module not loaded. Try refreshing the app.', 'error');
+    return;
+  }
+  if (!PUSH.isSupported()) {
+    showToast('Push notifications not supported on this browser.', 'info');
+    return;
+  }
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+
+    if (sub) {
+      // Currently ON — disable
+      if (confirm('Disable daily 6 AM workout reminders?')) {
+        await PUSH.unsubscribe();
+        showToast('Daily reminders disabled.', 'info');
+        updateReminderBtn();
+      }
+    } else {
+      // Currently OFF — show the enable banner (force show even if dismissed)
+      Store.remove('ff_push_dismissed_today'); // clear any dismissal
+      showPushPrompt(true);                    // force show banner
+    }
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+async function updateReminderBtn() {
+  const btn = document.getElementById('notif-toggle-btn');
+  if (!btn) return;
+  try {
+    if (typeof PUSH === 'undefined' || !PUSH.isSupported()) {
+      btn.textContent = '🔔 Daily Reminders';
+      return;
+    }
+    const isSubscribed = await PUSH.isSubscribed();
+    btn.textContent = isSubscribed ? '🔕 Reminders: ON (tap to disable)' : '🔔 Daily Reminders: OFF';
+    btn.style.color  = isSubscribed ? 'var(--g5)' : 'var(--text2)';
+  } catch {
+    btn.textContent = '🔔 Daily Reminders';
+  }
+}
+// Set admin name in header after login
+document.addEventListener('DOMContentLoaded', () => {
+  // Patch quotes with any admin-saved custom quotes
+  const custom = Store.getContent('custom_quotes');
+  if (custom && custom.length) APP_DATA.quotes = custom;
+
+  // Patch exercises with admin-saved overrides
+  ['cardio','gym','yoga','stretching','core'].forEach(mod => {
+    const saved = Store.getContent('exercises_' + mod);
+    if (saved && saved.days && APP_DATA.modules[mod]) {
+      APP_DATA.modules[mod].days = saved.days;
+    }
+  });
+});
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: ADMIN CONTENT EDITOR                                       -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-admin-editor" class="page">
+  <div class="scroll-content" style="padding-bottom:100px">
+
+    <!-- Edit bar -->
+    <div class="admin-edit-bar">
+      <button class="back-btn" onclick="goBackFromEditor()" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2)">‹</button>
+      <div class="edit-title" id="editor-module-title">Editor</div>
+      <span class="edit-badge">ADMIN EDIT</span>
+    </div>
+
+    <!-- Section tabs -->
+    <div style="padding:12px 16px 0;overflow-x:auto">
+      <div class="tab-strip" id="editor-section-tabs"></div>
+    </div>
+
+    <!-- Save button -->
+    <div style="padding:12px 16px 0">
+      <button id="editor-save-btn" class="btn btn-primary btn-full"
+        style="background:linear-gradient(135deg,var(--g3),var(--g4))"
+        onclick="saveEditorChanges()">💾 Save Changes</button>
+    </div>
+
+    <!-- Editor body -->
+    <div id="editor-body" class="admin-edit-mode" style="padding-top:12px"></div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: CUSTOM WORKOUTS LIST                                       -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-custom-workouts" class="page">
+  <div class="scroll-content pb-nav">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()">‹</button>
+      <div class="top-bar-title">✏️ My Workouts</div>
+      <button class="btn btn-primary btn-sm" onclick="openCreateWorkout()" style="padding:8px 14px">+ New</button>
+    </div>
+    <div class="container" style="padding-top:16px">
+      <div id="cw-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: CUSTOM WORKOUT EDITOR                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-cw-editor" class="page">
+  <div class="scroll-content" style="padding-bottom:100px">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()">‹</button>
+      <div class="top-bar-title" id="cw-editor-title">Create Workout</div>
+      <div style="width:38px"></div>
+    </div>
+    <div class="container" style="padding-top:16px">
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Workout Name</label>
+        <input id="cw-workout-name" type="text" class="form-input" placeholder="e.g. My Monday Blast, Upper Body, Leg Day...">
+        <div id="cw-name-error" style="color:#ef9a9a;font-size:13px;min-height:16px;margin-top:4px"></div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="section-title" style="margin:0">Exercises</div>
+        <button class="btn btn-outline btn-sm" onclick="addExerciseToCW()">+ Add Exercise</button>
+      </div>
+
+      <div id="cw-exercises-list" style="margin-bottom:16px"></div>
+
+      <button class="btn btn-accent btn-full btn-lg" onclick="saveWorkout()">💾 Save Workout</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: DO CUSTOM WORKOUT                                          -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-cw-workout" class="page">
+  <div class="scroll-content pb-nav">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()">‹</button>
+      <div>
+        <div class="top-bar-title" id="cw-workout-title"></div>
+        <div id="cw-workout-subtitle" style="font-size:12px;color:var(--text3)"></div>
+      </div>
+      <div style="width:38px"></div>
+    </div>
+    <div class="container" style="padding-top:16px">
+      <div id="cw-workout-exercises" style="margin-bottom:16px"></div>
+      <button id="cw-complete-btn" class="btn btn-primary btn-full" style="margin-bottom:20px">Mark Complete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: WEEKLY REPORT                                              -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-weekly-report" class="page">
+  <div class="scroll-content" style="padding-bottom:32px">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()">‹</button>
+      <div class="top-bar-title">📊 Weekly Report</div>
+      <div style="width:38px"></div>
+    </div>
+    <div class="container" style="padding-top:16px">
+      <div id="weekly-report-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add/Edit Exercise in Custom Workout -->
+<div id="modal-cw-exercise" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="cw-ex-modal-title">Add Exercise</div>
+    <input type="hidden" id="cw-ex-idx">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Exercise Name *</label>
+        <input id="cw-ex-name" type="text" class="form-input" placeholder="e.g. Push-Ups, Barbell Squat...">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label class="form-label">Sets</label>
+          <input id="cw-ex-sets" type="number" class="form-input" min="1" max="20" value="3">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Reps / Duration</label>
+          <input id="cw-ex-reps" type="text" class="form-input" placeholder="10 reps / 30 sec">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rest Between Sets (seconds, optional)</label>
+        <input id="cw-ex-rest" type="number" class="form-input" placeholder="e.g. 60" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes (optional)</label>
+        <textarea id="cw-ex-desc" class="form-input" rows="2" placeholder="Form tips, variations..."></textarea>
+      </div>
+      <div id="cw-ex-error" style="color:#ef9a9a;font-size:13px;min-height:16px"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline btn-full" onclick="closeModal('modal-cw-exercise')">Cancel</button>
+        <button class="btn btn-primary btn-full" onclick="saveExerciseModal()">Save Exercise</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PAGE: CALISTHENICS                                               -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="page-calisthenics" class="page">
+  <div class="scroll-content pb-nav">
+    <div class="top-bar">
+      <button class="back-btn" onclick="showPage('page-dashboard');refreshDashboard()">‹</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:24px">🤸‍♂️</span>
+        <span class="top-bar-title">Calisthenics</span>
+      </div>
+      <div style="width:38px"></div>
+    </div>
+    <div id="cali-page-content"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MODAL: Run / Activity Detail                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="modal-run-detail" class="modal-overlay">
+  <div class="modal-sheet" style="max-height:90vh;overflow-y:auto;padding:0">
+    <div class="modal-handle" style="margin:12px auto 0"></div>
+    <div id="run-detail-content" style="padding:0 0 24px"></div>
+    <div style="padding:0 16px 16px;display:flex;gap:10px">
+      <button class="btn btn-full" onclick="confirmDeleteRunLog()"
+        style="flex:0 0 auto;width:52px;height:44px;padding:0;background:rgba(229,57,53,.12);
+        border:1px solid rgba(229,57,53,.35);border-radius:12px;font-size:18px;display:flex;
+        align-items:center;justify-content:center" title="Delete activity">🗑️</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('modal-run-detail')"
+        style="flex:1">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-confirm" class="modal-overlay">
+  <div class="modal-sheet" style="padding:24px 20px 20px">
+    <div class="modal-handle" style="margin:0 auto 16px"></div>
+    <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:10px" id="confirm-title">Are you sure?</div>
+    <div style="font-size:14px;color:var(--text3);line-height:1.6;margin-bottom:24px" id="confirm-message"></div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button id="confirm-ok-btn" class="btn btn-full">Confirm</button>
+      <button id="confirm-cancel-btn" class="btn btn-outline btn-full">Cancel</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "name": "FitFlow Pro",
+  "short_name": "FitFlow",
+  "description": "Android-first all-in-one fitness app — workouts, running, yoga, calisthenics, diet & more.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d1f14",
+  "theme_color": "#0d1f14",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["fitness", "health", "sports"],
+  "lang": "en",
+  "dir": "ltr"
+}
